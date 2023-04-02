@@ -159,7 +159,17 @@ def create_grid(locked_positions={}):
 
 
 def convert_shape_format(shape):
-    pass
+    positions = []
+    format = shape.shape[shape.rotation % len(shape.shape)]
+
+    for i, line in enumerate(len(format)):
+        row = list(line)
+        for j, collum in enumerate(row):
+            if collum == "0":
+                positions.append((shape.x + j, shape.y + i))
+    for i, pos in enumerate(positions):
+        positions[i] = (pos[0] + 2, pos[1] - 4)
+
 
 
 def valid_space(shape, grid):
@@ -179,19 +189,13 @@ def draw_text_middle(text, size, color, surface):
 
 
 def draw_grid(surface, row, col, grid):
-    surface.fill(0, 0, 0)
-
-    pygame.font.init()
-    font = pygame.font.SysFont('comicsans', 60)
-    label = font.render("TETRIS", 1, (255, 255, 255))
-
-    surface.blit(label, (top_left_x + play_width/2 - (label.get_width()/2), 30))
+    sx = top_left_x
+    sy = top_left_y
 
     for i in range(len(grid)):
+        pygame.draw.line(surface, (128, 128, 128), (sx,sy + i * block_size), (sx + play_width, sy + i * block_size))
         for j in range(len(grid[i])):
-            pygame.draw.rect(surface, grid[i][j], top_left_x + j*block_size, top_left_y + i*block_size, block_size, block_size, 0)
-
-    pygame.draw.rect(surface, (255, 0, 0), (top_left_x, top_left_y, play_width, play_height), 4)
+            pygame.draw.line(surface, (128, 128, 128), (sx+ j * block_size, sy), (sx + j * block_size, sy + play_height))
 
 
 def clear_rows(grid, locked):
@@ -210,6 +214,12 @@ def draw_window(surface, grid):
     label = font.render("TETRIS", 1, (255, 255, 255))
 
     surface.blit(label, (top_left_x + play_width / 2 - (label.get_width() / 2), 30))
+
+    for i in range(len(grid)):
+        for j in range(len(grid[i])):
+            pygame.draw.rect(surface, grid[i][j], top_left_x + j*block_size, top_left_y + i*block_size, block_size, block_size, 0)
+
+    pygame.draw.rect(surface, (255, 0, 0), (top_left_x, top_left_y, play_width, play_height), 4)
 
     draw_grid(surface, grid)
     pygame.display.update()
