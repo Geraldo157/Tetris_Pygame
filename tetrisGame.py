@@ -149,26 +149,29 @@ class Piece(object):
 
 
 def create_grid(locked_positions={}):
-    grid = [[(0, 0, 0)for x in range(10)] for x in range(20)]
+    grid = [[(0, 0, 0) for x in range(10)] for x in range(20)]
 
     for i in range(len(grid)):
         for j in range(len(grid[i])):
             if (j, i) in locked_positions:
-                c = locked_positions[(j,i)]
+                c = locked_positions[(j, i)]
                 grid[i][j] = c
+    return grid
 
 
 def convert_shape_format(shape):
     positions = []
     format = shape.shape[shape.rotation % len(shape.shape)]
 
-    for i, line in enumerate(len(format)):
+    for i, line in enumerate(format):
         row = list(line)
         for j, collum in enumerate(row):
             if collum == "0":
                 positions.append((shape.x + j, shape.y + i))
     for i, pos in enumerate(positions):
         positions[i] = (pos[0] + 2, pos[1] - 4)
+
+    return positions
 
 
 def valid_space(shape, grid):
@@ -195,6 +198,7 @@ def check_lost(positions):
 
 
 def get_shape():
+    global shapes, shape_colors
     return Piece(5, 0, random.choice(shapes))
 
 
@@ -202,7 +206,7 @@ def draw_text_middle(text, size, color, surface):
     pass
 
 
-def draw_grid(surface, row, col, grid):
+def draw_grid(surface, grid):
     sx = top_left_x
     sy = top_left_y
 
@@ -221,7 +225,7 @@ def draw_next_shape(shape, surface):
 
 
 def draw_window(surface, grid):
-    surface.fill(0, 0, 0)
+    surface.fill((0, 0, 0))
 
     pygame.font.init()
     font = pygame.font.SysFont('comicsans', 60)
@@ -231,7 +235,7 @@ def draw_window(surface, grid):
 
     for i in range(len(grid)):
         for j in range(len(grid[i])):
-            pygame.draw.rect(surface, grid[i][j], top_left_x + j*block_size, top_left_y + i*block_size, block_size, block_size, 0)
+            pygame.draw.rect(surface, grid[i][j], (top_left_x + j * block_size, top_left_y + i * block_size, block_size, block_size), 0)
 
     pygame.draw.rect(surface, (255, 0, 0), (top_left_x, top_left_y, play_width, play_height), 4)
 
@@ -247,7 +251,7 @@ def main(win):
     run = True
     current_piece = get_shape()
     next_piece = get_shape()
-    clock = pygame.time.Clock
+    clock = pygame.time.Clock()
     fall_time = 0
     fall_speed = 0.27
     while run:
@@ -270,20 +274,19 @@ def main(win):
                 if event.key == pygame.K_LEFT:
                     current_piece.x -= 1
                     if not(valid_space(current_piece, grid)):
-                        current_piece += 1
+                        current_piece.x += 1
                 if event.key == pygame.K_RIGHT:
                     current_piece.x += 1
                     if not(valid_space(current_piece, grid)):
-                        current_piece -= 1
+                        current_piece.x -= 1
                 if event.key == pygame.K_UP:
                     current_piece.rotation += 1
                     if not(valid_space(current_piece, grid)):
-                        current_piece -= 1
+                        current_piece.rotation -= 1
                 if event.key == pygame.K_DOWN:
                     current_piece.y += 1
                     if not(valid_space(current_piece, grid)):
                         current_piece.y -= 1
-
 
         shape_pos = convert_shape_format(current_piece)
 
@@ -304,8 +307,6 @@ def main(win):
 
         if check_lost(locked_positions):
             run = False
-
-    pygame.display.quit()
 
 
 def main_menu(win):
